@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pakistan Weather App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #e3f2fd;
+    }
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 24px;
+    }
+    .weather-card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .weather-card img {
+      width: 80px;
+    }
+    .weather-table th, .weather-table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <a class="navbar-brand" href="#">Pakistan Weather</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Usage Guide</a></li>
+      </ul>
+      <form class="d-flex" onsubmit="getWeatherByInput(); return false;">
+        <input id="cityInput" class="form-control me-2" type="search" placeholder="Search Pakistani City" required />
+        <button class="btn btn-light" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- Main Weather Card Section -->
+  <div class="container my-4">
+    <div class="row" id="weatherContainer">
+      <!-- Weather Cards will load here -->
+    </div>
+
+    <h4 class="text-center mb-3">Popular Pakistani Cities</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered weather-table">
+        <thead class="table-primary">
+          <tr>
+            <th>City</th>
+            <th>Temp (°C)</th>
+            <th>Weather</th>
+            <th>Humidity</th>
+            <th>Wind (km/h)</th>
+          </tr>
+        </thead>
+        <tbody id="weatherTableBody">
+          <!-- Weather data rows will load here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const weatherApi = {
+      key: '4eb3703790b356562054106543b748b2', // New API key
+      baseUrl: 'https://api.openweathermap.org/data/2.5/weather'
+    }
+
+    let searchInputBox = document.getElementById('cityInput');
+    searchInputBox.addEventListener('keypress', (event) => {
+      if (event.keyCode == 13) {
+        getWeatherReport(searchInputBox.value);
+      }
+    });
+
+    // Get weather report
+    function getWeatherReport(city) {
+      fetch(`${weatherApi.baseUrl}?q=${city}&appid=${weatherApi.key}&units=metric`)
+        .then(weather => weather.json())
+        .then(showWeatherReport);
+    }
+
+    // Show weather report
+    function showWeatherReport(weather) {
+      if (weather.cod === '404') {
+        alert("City not found!");
+        return;
+      }
+
+      let weatherContainer = document.getElementById('weatherContainer');
+      weatherContainer.innerHTML = `
+        <div class="col-md-4 offset-md-4">
+          <div class="weather-card">
+            <h4>${weather.name}, ${weather.sys.country}</h4>
+            <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png" />
+            <h2>${Math.round(weather.main.temp)}°C</h2>
+            <p>${weather.weather[0].main}</p>
+            <p>Humidity: ${weather.main.humidity}%</p>
+            <p>Wind: ${weather.wind.speed} km/h</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Get weather by input value
+    async function getWeatherByInput() {
+      const city = document.getElementById("cityInput").value;
+      getWeatherReport(city);
+    }
+    
+  </script>
+      
+</body>
+</html>
